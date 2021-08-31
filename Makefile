@@ -4,7 +4,7 @@
 
 DEBUG=0
 
-STD=-std=c11
+STD=-std=c99
 WARN=-Wall -Wextra -Wpedantic \
      -Wformat=2 -Wshadow -Wpadded \
      -Wwrite-strings -Wstrict-prototypes -Wold-style-definition \
