@@ -9,21 +9,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define DEFAULT_PORT 2058
-#define DEFUALT_HOST "127.0.0.0"
-
-typedef struct ServerConfig {
-    int port_num;
-    char host_addr[256];
-    int verbose_flag;
-    int help_flag;
-    char folder_to_serve[100];
-} ServerConfig;
+#include "server.h"
 
 void print_usage(FILE *stream, char *program_name)
 {
     fprintf(stream,
-            "Usage: %s [options] <folder_to_serve>\n"
+            "Usage: %s [options] <folder_path>\n"
             "\nOptions:\n"
             "--port, -p <number> \t default: %d\n"
             "--host, -h <address> \t default: %s\n"
@@ -33,18 +24,6 @@ void print_usage(FILE *stream, char *program_name)
             "\nExample:\n"
             "%s --port=8080 --slient hello_world\n",
             program_name, DEFAULT_PORT, DEFUALT_HOST, program_name);
-}
-
-ServerConfig default_server_config(void)
-{
-    ServerConfig default_config = {
-        .port_num = DEFAULT_PORT,
-        .host_addr = DEFUALT_HOST,
-        .verbose_flag = 1,
-        .help_flag = 0,
-        .folder_to_serve = {0}
-    };
-    return default_config;
 }
 
 static ServerConfig parse_args(int argc, char **argv)
@@ -71,7 +50,7 @@ static ServerConfig parse_args(int argc, char **argv)
                 server_config.port_num = atoi(optarg);
                 break;
             case 'h':
-                memcpy(server_config.host_addr, optarg, sizeof(server_config.host_addr));
+                memcpy(server_config.host_addr, optarg, MAX_HOST_ADDR_LEN);
                 break;
             case '?':
             default:
@@ -79,8 +58,8 @@ static ServerConfig parse_args(int argc, char **argv)
         }
     }
 
-    if ((optind < argc) && (strlen(argv[optind]) > 0))
-        memcpy(server_config.folder_to_serve, argv[optind], sizeof(server_config.folder_to_serve));
+    if ((optind < argc) && (strnlen(argv[optind], MAX_FOLDER_NAME_LEN) > 0))
+        memcpy(server_config.folder_path, argv[optind], MAX_FOLDER_NAME_LEN);
     return server_config;
 }
 
@@ -94,7 +73,7 @@ int main(int argc, char **argv)
         exit(EXIT_SUCCESS);
     }
 
-    if (strlen(server_config.folder_to_serve) < 1) {
+    if (strnlen(server_config.folder_path, MAX_FOLDER_NAME_LEN) < 1) {
         fprintf(stderr, "Which folder to serve?\n");
         print_usage(stderr, program_name);
         exit(EXIT_FAILURE);
@@ -102,8 +81,8 @@ int main(int argc, char **argv)
     printf("port_num: %i\n"
            "host_addr: %s\n"
            "verbose: %i\n"
-           "folder_to_serve: %s",
-           server_config.port_num, server_config.host_addr, server_config.verbose_flag, server_config.folder_to_serve);
+           "folder_path: %s",
+           server_config.port_num, server_config.host_addr, server_config.verbose_flag, server_config.folder_path);
     return 0;
 }
 
