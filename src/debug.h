@@ -10,6 +10,12 @@
 
 #include <stdio.h>
 
+#ifdef NDEBUG
+#define DEBUG 0
+#else
+#define DEBUG 1
+#endif
+
 #define DEBUG_LOG(stream, fmt, ...) \
     do { if (DEBUG) dbg_log(stream, fmt, __VA_ARGS__); } while (0)
 
