@@ -26,7 +26,7 @@ void handle_response(int client_sock_fd)
 typedef void (*res_handler_cb)(int);
 void handle_request(int client_sock_fd, res_handler_cb send_res)
 {
-    char req_buff[4095] = {0};
+    char req_buff[4096] = {0};
     int bytes_recvd = recv(client_sock_fd, req_buff, sizeof(req_buff) - 1, 0);
     if (bytes_recvd < 0) {
         DEBUG_PERROR("fail to receive data");
