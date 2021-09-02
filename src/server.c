@@ -55,7 +55,7 @@ static int init_socket(const char *port_num, const char *host_addr)
     if (ret_value != 0) {
         DEBUG_LOG(stderr, "getaddrinfo: %s\n", gai_strerror(ret_value));
         freeaddrinfo(result);
-        exit(EXIT_FAILURE);
+        return -1;
     }
 
     for (tmp_ai = result; tmp_ai != NULL; tmp_ai = tmp_ai->ai_next) {
@@ -82,12 +82,12 @@ static int init_socket(const char *port_num, const char *host_addr)
     freeaddrinfo(result);
     if (tmp_ai == NULL) {
         DEBUG_LOGLN(stderr, "live_cserver: cannot find valid local address");
-        exit(EXIT_FAILURE);
+        return -1;
     }
     if (listen(master_sock_fd, BACKLOG) != 0) {
         DEBUG_PERROR("fail to listen socket");
         close(master_sock_fd);
-        exit(EXIT_FAILURE);
+        return -1;
     }
     printf("Server listening on: http://localhost:%s\n", port_num);
     return master_sock_fd;
@@ -95,8 +95,10 @@ static int init_socket(const char *port_num, const char *host_addr)
 
 void start_server(ServerConfig server_config)
 {
-   int client_sock_fd = -1;
    int master_sock_fd = init_socket(server_config.port_num, server_config.host_addr);
+   if (master_sock_fd == -1)
+       return;
+   int client_sock_fd = -1;
    struct sockaddr_in client_addr;
    while (1) {
        socklen_t client_addr_len = sizeof(struct sockaddr_in);
