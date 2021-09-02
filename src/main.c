@@ -16,14 +16,14 @@ void print_usage(FILE *stream, char *program_name)
     fprintf(stream,
             "Usage: %s [options] <folder_path>\n"
             "\nOptions:\n"
-            "--port, -p <number> \t default: %d\n"
+            "--port, -p <number> \t default: %s\n"
             "--host, -h <address> \t default: %s\n"
             "--verbose \t\t enable logging (default)\n"
             "--slient \t\t disable logging\n"
             "--help\n"
             "\nExample:\n"
             "%s --port=8080 --slient hello_world\n",
-            program_name, DEFAULT_PORT, DEFUALT_HOST, program_name);
+            program_name, DEFAULT_PORT_NUM, DEFAULT_HOST_ADDR, program_name);
 }
 
 static ServerConfig parse_args(int argc, char **argv)
@@ -40,14 +40,14 @@ static ServerConfig parse_args(int argc, char **argv)
 
     int opt_ch = 0;
     int opt_idx = 0;
-    
+
     while (1) {
         opt_ch = getopt_long(argc, argv, "p:h:h", options, &opt_idx);
         if (opt_ch == -1) break;
 
         switch (opt_ch) {
             case 'p':
-                server_config.port_num = atoi(optarg);
+                memcpy(server_config.port_num, optarg, MAX_PORT_NUM_LEN);
                 break;
             case 'h':
                 memcpy(server_config.host_addr, optarg, MAX_HOST_ADDR_LEN);
@@ -58,8 +58,8 @@ static ServerConfig parse_args(int argc, char **argv)
         }
     }
 
-    if ((optind < argc) && (strnlen(argv[optind], MAX_FOLDER_NAME_LEN) > 0))
-        memcpy(server_config.folder_path, argv[optind], MAX_FOLDER_NAME_LEN);
+    if ((optind < argc) && (strnlen(argv[optind], MAX_FOLDER_PATH_LEN) > 0))
+        memcpy(server_config.folder_path, argv[optind], MAX_FOLDER_PATH_LEN);
     return server_config;
 }
 
@@ -73,16 +73,12 @@ int main(int argc, char **argv)
         exit(EXIT_SUCCESS);
     }
 
-    if (strnlen(server_config.folder_path, MAX_FOLDER_NAME_LEN) < 1) {
+    if (strnlen(server_config.folder_path, MAX_FOLDER_PATH_LEN) < 1) {
         fprintf(stderr, "Which folder to serve?\n");
         print_usage(stderr, program_name);
         exit(EXIT_FAILURE);
     }
-    printf("port_num: %i\n"
-           "host_addr: %s\n"
-           "verbose: %i\n"
-           "folder_path: %s",
-           server_config.port_num, server_config.host_addr, server_config.verbose_flag, server_config.folder_path);
+    start_server(server_config);
     return 0;
 }
 
