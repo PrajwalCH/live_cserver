@@ -11,7 +11,7 @@
 
 #include "server.h"
 
-void print_usage(FILE *stream, char *program_name)
+void print_usage(FILE *stream, const char *program_name)
 {
     fprintf(stream,
             "Usage: %s [options] <folder_path>\n"
