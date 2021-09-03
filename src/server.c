@@ -7,20 +7,81 @@
 #include "server.h"
 
 #include <stdlib.h>
+#include <stdbool.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <unistd.h>
+#include <time.h>
 
 #include "debug.h"
 
 #define BACKLOG 10
 
+typedef struct HTTPRequest {
+    char method[50];
+    char path[50];
+    char http_ver[50];
+} HTTPRequest;
+
+void log_request(HTTPRequest *req_obj)
+{
+#define GREEN_ON "\033[0;32m"
+#define COLOR_OFF "\033[0m"
+    time_t raw_time;
+    struct tm *time_info;
+    time(&raw_time);
+    time_info = localtime(&raw_time);
+    DEBUG_LOG(stdout, GREEN_ON"[%02d:%02d:%02d] "COLOR_OFF"%s %s\n", time_info->tm_hour % 12, time_info->tm_min, time_info->tm_sec, req_obj->method, req_obj->path);
+}
+
 void handle_response(int client_sock_fd)
 {
     const char *res_buff = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\nHello World";
     send(client_sock_fd, res_buff, strlen(res_buff), 0);
+}
+
+static HTTPRequest parse_request(char *req_buff)
+{
+    HTTPRequest req_obj = {
+        .method = {0},
+        .path = {0},
+        .http_ver = {0},
+    };
+
+    bool is_method_extracted = false;
+    bool is_path_extracted = false;
+    int space_encounter = 0;
+    int idx = 0;
+
+    while (*req_buff != '\r') {
+        if (*req_buff == ' ') {
+            space_encounter += 1;
+
+            if (space_encounter == 1)
+                is_method_extracted = true;
+
+            if (space_encounter == 2)
+                is_path_extracted = true;
+
+            idx = 0;
+            req_buff++; // skip the space
+        }
+
+        if (space_encounter == 0 && !is_method_extracted)
+            req_obj.method[idx] = *req_buff;
+
+        if (space_encounter == 1 && !is_path_extracted)
+            req_obj.path[idx] = *req_buff;
+
+        if (space_encounter == 2 && is_path_extracted)
+            req_obj.http_ver[idx] = *req_buff;
+
+        idx++;
+        req_buff++;
+    }
+    return req_obj;
 }
 
 typedef void (*res_handler_cb)(int);
@@ -33,6 +94,8 @@ void handle_request(int client_sock_fd, res_handler_cb send_res)
         return;
     }
     DEBUG_LOG(stdout, "%s", req_buff);
+    HTTPRequest req_obj = parse_request(req_buff);
+    log_request(&req_obj);
     send_res(client_sock_fd);
 }
 
@@ -96,10 +159,10 @@ static int init_socket(const char *port_num, const char *host_addr)
 void start_server(ServerConfig server_config)
 {
    int master_sock_fd = init_socket(server_config.port_num, server_config.host_addr);
-   if (master_sock_fd == -1)
-       return;
+   if (master_sock_fd == -1) return;
    int client_sock_fd = -1;
    struct sockaddr_in client_addr;
+
    while (1) {
        socklen_t client_addr_len = sizeof(struct sockaddr_in);
        if ((client_sock_fd = accept(master_sock_fd, (struct sockaddr *)&client_addr, &client_addr_len)) == -1) {
