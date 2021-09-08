@@ -26,9 +26,9 @@ void print_usage(FILE *stream, const char *program_name)
             program_name, DEFAULT_PORT_NUM, DEFAULT_HOST_ADDR, program_name);
 }
 
-static ServerConfig parse_args(int argc, char **argv)
+static struct ServerConfig parse_args(int argc, char **argv)
 {
-    ServerConfig server_config = default_server_config();
+    struct ServerConfig server_config = default_server_config();
     struct option options[] = {
         {"port", required_argument, NULL, 'p'},
         {"host", required_argument, NULL, 'h'},
@@ -65,7 +65,7 @@ static ServerConfig parse_args(int argc, char **argv)
 
 int main(int argc, char **argv)
 {
-    ServerConfig server_config = parse_args(argc, argv);
+    struct ServerConfig server_config = parse_args(argc, argv);
     char *program_name = argv[0]; // require to print on usage/help information
 
     if (server_config.help_flag) {
