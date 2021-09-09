@@ -7,11 +7,21 @@
 #include <getopt.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
+#include <sys/stat.h>
 
 #include "server.h"
 
-void print_usage(FILE *stream, const char *program_name)
+static bool is_folder_exist(const char *folder_path)
+{
+    struct stat stat_buff;
+    if (stat(folder_path, &stat_buff) == 0 && S_ISDIR(stat_buff.st_mode))
+        return true;
+    return false;
+}
+
+static void print_usage(FILE *stream, const char *program_name)
 {
     fprintf(stream,
             "Usage: %s [options] <folder_path>\n"
@@ -66,7 +76,7 @@ static struct ServerConfig parse_args(int argc, char **argv)
 int main(int argc, char **argv)
 {
     struct ServerConfig server_config = parse_args(argc, argv);
-    char *program_name = argv[0]; // require to print on usage/help information
+    const char *program_name = argv[0]; // require to print on usage/help information
 
     if (server_config.help_flag) {
         print_usage(stdout, program_name);
@@ -78,6 +88,12 @@ int main(int argc, char **argv)
         print_usage(stderr, program_name);
         exit(EXIT_FAILURE);
     }
+
+    if (!is_folder_exist(server_config.folder_path)) {
+        fprintf(stderr, "Folder '%s' doesn't exist\n", server_config.folder_path);
+        exit(EXIT_FAILURE);
+    }
+
     start_server(server_config);
     return 0;
 }
