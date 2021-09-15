@@ -17,16 +17,16 @@
 #define DEFAULT_HOST_ADDR "127.0.0.1"
 #define DEFAULT_VERBOSE_FLAG 1
 
-typedef struct ServerConfig {
+struct ServerConfig {
     char folder_path[MAX_FOLDER_PATH_LEN + NULL_BYTE];
     char port_num[MAX_PORT_NUM_LEN + NULL_BYTE];
     char host_addr[MAX_HOST_ADDR_LEN + NULL_BYTE];
     int verbose_flag;
     int help_flag;
-} ServerConfig;
+};
 
-void start_server(ServerConfig server_config);
-ServerConfig default_server_config(void);
+void start_server(struct ServerConfig server_config);
+struct ServerConfig default_server_config(void);
 
 #endif /* SERVER_H */
 
