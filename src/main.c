@@ -13,10 +13,10 @@
 
 #include "server.h"
 
-static bool is_folder_exist(const char *folder_path)
+static bool is_folder_exist(const char *folder_pathname)
 {
     struct stat stat_buff;
-    if (stat(folder_path, &stat_buff) == 0 && S_ISDIR(stat_buff.st_mode))
+    if (stat(folder_pathname, &stat_buff) == 0 && S_ISDIR(stat_buff.st_mode))
         return true;
     return false;
 }
@@ -24,7 +24,7 @@ static bool is_folder_exist(const char *folder_path)
 static void print_usage(FILE *stream, const char *program_name)
 {
     fprintf(stream,
-            "Usage: %s [options] <folder_path>\n"
+            "Usage: %s [options] <folder_pathname>\n"
             "\nOptions:\n"
             "--port, -p <number> \t default: %s\n"
             "--host, -h <address> \t default: %s\n"
@@ -69,7 +69,7 @@ static struct ServerConfig parse_args(int argc, char **argv)
     }
 
     if ((optind < argc) && (strnlen(argv[optind], MAX_FOLDER_PATH_LEN) > 0))
-        memcpy(server_config.folder_path, argv[optind], MAX_FOLDER_PATH_LEN);
+        memcpy(server_config.folder_pathname, argv[optind], MAX_FOLDER_PATH_LEN);
     return server_config;
 }
 
@@ -83,14 +83,14 @@ int main(int argc, char **argv)
         exit(EXIT_SUCCESS);
     }
 
-    if (strnlen(server_config.folder_path, MAX_FOLDER_PATH_LEN) < 1) {
+    if (strnlen(server_config.folder_pathname, MAX_FOLDER_PATH_LEN) < 1) {
         fprintf(stderr, "Which folder to serve?\n");
         print_usage(stderr, program_name);
         exit(EXIT_FAILURE);
     }
 
-    if (!is_folder_exist(server_config.folder_path)) {
-        fprintf(stderr, "Folder '%s' doesn't exist\n", server_config.folder_path);
+    if (!is_folder_exist(server_config.folder_pathname)) {
+        fprintf(stderr, "Folder '%s' doesn't exist\n", server_config.folder_pathname);
         exit(EXIT_FAILURE);
     }
 
