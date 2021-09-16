@@ -16,17 +16,18 @@ void path_dbgln(char *pathname, struct Path *path)
            "dirname  : %.*s\n"
            "---------------------\n"
            "basename : %s\n"
-           "---------------------\n"
-           "filename : %.*s\n"
-           "---------------------\n"
-           "file ext : %s\n",
+           "---------------------\n",
+           //"filename : %.*s\n"
+           //"---------------------\n",
+           //"file ext : %s\n",
            pathname,
            (int)path->dirname_len,
            path->dirname,
-           path->basename,
-           (int)path->filename_len,
-           path->filename,
-           path->file_ext);
+           path->basename
+           //(int)path->filename_len,
+           //path->filename,
+           //path->file_ext
+           );
 }
 
 static char *skip_slash(char *path_ptr)
@@ -35,6 +36,7 @@ static char *skip_slash(char *path_ptr)
     return (path_ptr + num_starting_slashes);
 }
 
+/*
 static void path_get_filename(struct Path *path)
 {
     if (path->basename != NULL) {
@@ -49,6 +51,7 @@ static void path_get_filename(struct Path *path)
         }
     }
 }
+*/
 
 static void path_get_basename(char *pathname, char *last_slash, struct Path *path)
 {
@@ -67,10 +70,14 @@ static void path_get_basename(char *pathname, char *last_slash, struct Path *pat
 static void path_get_dirname(char *pathname, char *last_slash, struct Path *path)
 {
     if (path->dirname == NULL) {
-        char *pathname_Wskip_slashes = skip_slash(pathname);
+        char *dirname_Wskip_slashes = skip_slash(pathname);
+        
+        // if there are multiple slashes at the begining only return with one slash
+        if (dirname_Wskip_slashes[-1] == '/')
+            dirname_Wskip_slashes -= 1;
 
-        path->dirname_len = strnlen(pathname_Wskip_slashes, last_slash - pathname_Wskip_slashes);
-        path->dirname = pathname_Wskip_slashes;
+        path->dirname_len = strnlen(dirname_Wskip_slashes, last_slash - dirname_Wskip_slashes);
+        path->dirname = dirname_Wskip_slashes;
     }
 }
 
@@ -92,19 +99,19 @@ struct Path path_parse(char *pathname)
     struct Path path = {
         .dirname = NULL,
         .basename = NULL,
-        .filename = NULL,
-        .file_ext = NULL,
+        //.filename = NULL,
+        //.file_ext = NULL,
         .dirname_len = 1, // its always one
         .basename_len = 0,
-        .filename_len = 0,
-        .file_ext_len = 0
+        //.filename_len = 0,
+        //.file_ext_len = 0
     };
 
     char *last_slash = strrchr(pathname, '/');
     char *ptr_idx = NULL;
 
     if (last_slash != NULL && last_slash == pathname && last_slash[1] == '\0') {
-        path.dirname = (char *)DOT;
+        path.dirname = pathname;
         return path;
     }
 
@@ -129,10 +136,9 @@ struct Path path_parse(char *pathname)
         ptr_idx = path_check_remain_chars(pathname, last_slash);
 
         // there are multiple slashes at the begining of path
-        // ex: //root/basename
+        // ex: //root
         if (ptr_idx == pathname) {
-            // ignore all of them and only return '.'
-            path.dirname = (char *)DOT;
+            path.dirname = pathname;
         } else {
             last_slash = ptr_idx;
         }
@@ -143,7 +149,7 @@ struct Path path_parse(char *pathname)
     }
 
     path_get_basename(pathname, last_slash, &path);
-    path_get_filename(&path);
+    //path_get_filename(&path);
 
     return path;
 }
