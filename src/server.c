@@ -92,7 +92,7 @@ void start_server(struct ServerConfig server_config)
            DEBUG_PERROR("fail to accept new connection");
            continue;
        }
-       handle_request(client_sock_fd, handle_response);
+       handle_request(client_sock_fd, &server_config, handle_response);
        close(client_sock_fd);
    }
 }
@@ -100,7 +100,7 @@ void start_server(struct ServerConfig server_config)
 struct ServerConfig default_server_config(void)
 {
     struct ServerConfig default_config = {
-        .folder_path = {0},
+        .folder_pathname = {0},
         .port_num = DEFAULT_PORT_NUM,
         .host_addr = DEFAULT_HOST_ADDR,
         .verbose_flag = DEFAULT_VERBOSE_FLAG,

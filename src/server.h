@@ -18,7 +18,7 @@
 #define DEFAULT_VERBOSE_FLAG 1
 
 struct ServerConfig {
-    char folder_path[MAX_FOLDER_PATH_LEN + NULL_BYTE];
+    char folder_pathname[MAX_FOLDER_PATH_LEN + NULL_BYTE];
     char port_num[MAX_PORT_NUM_LEN + NULL_BYTE];
     char host_addr[MAX_HOST_ADDR_LEN + NULL_BYTE];
     int verbose_flag;
