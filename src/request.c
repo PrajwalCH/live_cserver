@@ -24,7 +24,7 @@ void log_request(struct HTTPRequest *req_obj)
     DEBUG_LOG(stdout,
               GREEN_ON"[%02d:%02d:%02d] "COLOR_OFF"%.*s %.*s\n",
               time_info->tm_hour % 12, time_info->tm_min, time_info->tm_sec,
-              req_obj->method_len, req_obj->method, req_obj->path_len, req_obj->path);
+              req_obj->method_len, req_obj->method, req_obj->pathname_len, req_obj->pathname);
 }
 
 static enum ReqParserResult parse_request(const char *req_buff, size_t req_buff_size, ssize_t bytes_recvd, struct HTTPRequest *req_obj)
@@ -32,7 +32,7 @@ static enum ReqParserResult parse_request(const char *req_buff, size_t req_buff_
     size_t req_buff_len = 0 + bytes_recvd;
     int phr_retv = phr_parse_request(req_buff, req_buff_len,
                                      &(req_obj->method), &(req_obj->method_len),
-                                     &(req_obj->path), &(req_obj->path_len),
+                                     &(req_obj->pathname), &(req_obj->pathname_len),
                                      &(req_obj->minor_ver),
                                      req_obj->headers, &(req_obj->num_headers),
                                      0);
@@ -49,28 +49,31 @@ static struct HTTPRequest init_HTTPRequest_obj(void)
 {
     struct HTTPRequest req_obj = {
         .method = NULL,
-        .path = NULL,
+        .pathname = NULL,
         .minor_ver = 0,
         .headers = {0},
         .method_len = 0,
-        .path_len = 0,
+        .pathname_len = 0,
         .num_headers = 0
     };
     req_obj.num_headers = sizeof(req_obj.headers) / sizeof(req_obj.headers[0]);
     return req_obj;
 }
 
-void handle_request(int client_sock_fd, res_handler_cb send_res)
+void handle_request(int client_sock_fd, struct ServerConfig *server_config, res_handler_cb send_res)
 {
     char req_buff[4096] = {0};
     ssize_t bytes_recvd = bytes_recvd = recv(client_sock_fd, req_buff, sizeof(req_buff) - 1, 0);
+
     if (bytes_recvd < 0) {
         DEBUG_PERROR("fail to receive data");
         return;
     }
+
     DEBUG_LOG(stdout, "%s\n", req_buff);
     struct HTTPRequest req_obj = init_HTTPRequest_obj();
     enum ReqParserResult req_parser_result = parse_request(req_buff, sizeof(req_buff), bytes_recvd, &req_obj);
+
     if (req_parser_result == REQ_PARSE_ERROR) {
         DEBUG_LOGLN(stderr, "Request parse error");
         return;
@@ -80,6 +83,8 @@ void handle_request(int client_sock_fd, res_handler_cb send_res)
         DEBUG_LOGLN(stderr, "Request is too long");
         return;
     }
-    log_request(&req_obj);
-    send_res(client_sock_fd, req_obj.path, req_obj.path_len);
+
+    if (server_config->verbose_flag)
+        log_request(&req_obj);
+    send_res(client_sock_fd, server_config->folder_pathname, (char *)req_obj.pathname, req_obj.pathname_len);
 }

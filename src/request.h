@@ -10,14 +10,15 @@
 
 #include <stddef.h> // for size_t
 #include "picohttpparser.h"
+#include "server.h"
 
 struct HTTPRequest {
     const char *method;
-    const char *path;
+    const char *pathname;
     int minor_ver;
     struct phr_header headers[100];
     size_t method_len;
-    size_t path_len;
+    size_t pathname_len;
     size_t num_headers;
 };
 
@@ -27,8 +28,8 @@ enum ReqParserResult {
     REQ_IS_TOO_LONG,
 };
 
-typedef void (*res_handler_cb)(int, const char *, size_t);
-void handle_request(int client_sock_fd, res_handler_cb send_res);
+typedef void (*res_handler_cb)(int, const char *, char *restrict, size_t);
+void handle_request(int client_sock_fd, struct ServerConfig *server_config, res_handler_cb send_res);
 
 #endif /* REQUEST_H */
 
