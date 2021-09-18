@@ -60,11 +60,11 @@ static bool construct_response_header(struct HTTPResponse *res_obj, char *buff, 
         "text/plain"
     };
 
-    const char *status_txt = get_status_txt_str(res_obj->status_code);
-    const char *content_type = mime_types[res_obj->content_type];
-    const char fmt[] = "%s %zu %s"CRLF"Content-Type: %s"CRLF"Content-Length: %zu"CRLF"Date: %s"CRLF;
-    
-    int num_bytes_written = snprintf(buff, buff_size, fmt, res_obj->protocol_ver, res_obj->status_code, status_txt, content_type, res_body_len, res_obj->date);
+    const char *status_txt = get_status_txt_str(res_header->status_code);
+    const char *content_type = mime_types[res_header->content_type];
+
+    const char fmt[] = "%s %zu %s"CRLF"Content-Type: %s"CRLF"Content-Length: %zu"CRLF"Date: %s"CRLF"%s";
+    int num_bytes_written = snprintf(buff, buff_size, fmt, res_header->protocol_ver, res_header->status_code, status_txt, content_type, res_header->content_length, res_header->date, res_body);
     if (num_bytes_written < 0 || num_bytes_written == 0) {
         fprintf(stderr, "failed to write response header on buffer\n");
         memset(buff, 0, buff_size);
