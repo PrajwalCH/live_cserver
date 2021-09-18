@@ -18,20 +18,22 @@
 #define CRLF "\r\n"
 #define RES_BUFF_SIZE 4095
 #define RES_HEADER_BUFF_SIZE 100
+#define FILE_PATHNAME_BUFF_SIZE 255
+#define DEFAULT_HTML_FILENAME "index.html"
 
 static const char *get_status_txt_str(enum StatusCode status_code)
 {
     const char *status_txt = "NOT FOUND";
-    
+
     switch (status_code) {
         case StatusCode_ok:
             status_txt = "OK";
             break;
         case StatusCode_not_found:
-            status_txt = "NOT FOUND";
+            status_txt = "Not Found";
             break;
         case StatusCode_internal_server_error:
-            status_txt = "INTERNAL SERVER ERROR";
+            status_txt = "Internal Server Error";
             break;
         default:
             break;
