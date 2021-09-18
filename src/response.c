@@ -41,7 +41,7 @@ static const char *get_status_txt_str(enum StatusCode status_code)
     return status_txt;
 }
 
-static bool construct_response_header(struct HTTPResponse *res_obj, char *buff, size_t buff_size, size_t res_body_len)
+static bool construct_response(struct ResponseHeader *res_header, char *buff, size_t buff_size, const char *res_body)
 {
     static char mime_types[][255] = {
         "application/octet-stream",
