@@ -33,7 +33,7 @@ enum MIMEType {
     MIMEType_txt,
 };
 
-struct HTTPResponse {
+struct ResponseHeader {
     const char *protocol_ver;
     enum StatusCode status_code;
     enum MIMEType content_type;
@@ -42,7 +42,7 @@ struct HTTPResponse {
     const char *connection;
 };
 
-void handle_response(int client_sock_fd, const char *path, size_t path_len);
+void handle_response(int client_sock_fd, const char *rootdir_pathname, char *url_pathname, size_t url_pathname_len);
 
 #endif /* RESPONSE_H */
 
