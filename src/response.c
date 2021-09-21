@@ -190,6 +190,6 @@ void handle_response(int client_sock_fd, const char *rootdir_pathname, char *url
         return;
     }
 
-    response_set_content_type(MIMEType_html, &res_header);
+    response_set_content_type(get_content_type_from_fileext(file_pathname), &res_header);
     response_send_file(client_sock_fd, &res_header, fp);
 }
