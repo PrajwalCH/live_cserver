@@ -180,7 +180,7 @@ void handle_response(int client_sock_fd, const char *rootdir_pathname, char *url
     struct ResponseHeader res_header = init_ResponseHeader_obj();
     char file_pathname[FILE_PATHNAME_BUFF_SIZE + 1] = {0};
     construct_file_pathname(file_pathname, rootdir_pathname, url_pathname, url_pathname_len);
-    DEBUG_LOG(stdout, "file: %s\n", file_pathname);
+
     FILE *fp = fopen(file_pathname, "r");
 
     if (fp == NULL) {
