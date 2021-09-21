@@ -125,6 +125,21 @@ static inline void response_set_status_code(enum StatusCode code, struct Respons
     res_header->status_code = code;
 }
 
+static enum MIMEType get_content_type_from_fileext(const char *file_pathname)
+{
+    char *last_slash = strrchr(file_pathname, '/');
+    char *file_ext = strrchr(last_slash, '.');
+
+    if (strcmp(file_ext, ".html") == 0)
+        return MIMEType_html;
+    if (strcmp(file_ext, ".css") == 0)
+        return MIMEType_css;
+    if (strcmp(file_ext, ".js") == 0)
+        return MIMEType_js;
+
+    return MIMEType_default;
+}
+
 static void construct_file_pathname(char *file_pathname_buff, const char *rootdir_pathname, char *url_pathname, size_t url_pathname_len)
 {
     char *last_slash = memrchr(url_pathname, '/', url_pathname_len);
