@@ -2,7 +2,7 @@ body {
     text-align: center;
 }
 
-#test-button {
-    border: 1px solid grey;
+#js-test-button {
+    padding: .4em 1.3em;
     text-transform: capitalize;
 }

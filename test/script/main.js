@@ -1,2 +1,2 @@
-const jsTestButton = document.querySelector("#test-button");
+const jsTestButton = document.querySelector("#js-test-button");
 jsTestButton.addEventListener("click", () => alert("JS Works!!"));
