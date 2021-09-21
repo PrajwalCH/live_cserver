@@ -81,13 +81,15 @@ static void response_send_file(int client_sock_fd, struct ResponseHeader *res_he
     fseek(fp, 0, SEEK_END);
     long chunk_size = ftell(fp);
     rewind(fp);
-    res_header->content_length = 0 + chunk_size;
 
+    res_header->content_length = 0 + chunk_size;
 
     char res_buff[RES_BUFF_SIZE + 1] = {0};
     char *file_buff = malloc(sizeof(char) * chunk_size + 1);
+
     memset(file_buff, 0, chunk_size + 1);
-    if (fread(file_buff, 1, chunk_size, fp) != chunk_size) {
+
+    if (fread(file_buff, 1, chunk_size, fp) != res_header->content_length) {
         DEBUG_LOGLN(stdout, "Unable to read file");
         fclose(fp);
         free(file_buff);
